@@ -9,9 +9,11 @@ services:
     ports:
       - "1433:1433"
   app:
-    build:
-      context: .
-      dockerfile: Application
+    image: openjdk:17-ea-jdk-oracle
+    volumes:
+      - ../target/Application-0.0.1-SNAPSHOT.jar:/app/application.jar  # Volume mapping
+    working_dir: /app
+    command: ["java", "-jar", "application.jar"]  # Updated JAR file name
     depends_on:
       - db
     ports:
