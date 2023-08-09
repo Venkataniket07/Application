@@ -1,19 +1,24 @@
-# docker-compose-Application.yml
+# docker-compose file sql-server and application services
 version: '3'
 services:
   db:
     image: mcr.microsoft.com/mssql/server
+    container_name: sql-server
     environment:
       SA_PASSWORD: "YourStrongPassword123"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
+    networks:
+      - docker_network
+
   app:
     image: openjdk:17-ea-jdk-oracle
+    container_name: application
     volumes:
       - ../target/Application-0.0.1-SNAPSHOT.jar:/app/application.jar  # Volume mapping
     working_dir: /app
-    command: ["java", "-jar", "application.jar"]  # Updated JAR file name
+    command: ["java", "-jar", "application.jar"]  # Updated JAR file name in docker environment
     depends_on:
       - db
     ports:
@@ -22,3 +27,9 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:sqlserver://db:1433;databaseName=master;TrustServerCertificate=True"
       SPRING_DATASOURCE_USERNAME: "sa"
       SPRING_DATASOURCE_PASSWORD: "YourStrongPassword123"
+    networks:
+      - docker_network
+
+networks:
+  docker_network:
+    driver: bridge
