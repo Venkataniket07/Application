@@ -1,11 +1,12 @@
 package com.backend.Application.service;
 
+import com.backend.Application.exceptions.BackendException;
 import com.backend.Application.model.Customer;
 
 import java.util.List;
 
 public interface CustomerService {
-    Customer registerCustomer(Customer customer) throws Exception;
+    Customer registerCustomer(Customer customer) throws BackendException;
 
     List<Customer> getCustomers();
 

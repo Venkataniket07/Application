@@ -1,5 +1,7 @@
 package com.backend.Application.controller;
 
+import com.backend.Application.exceptions.BackendException;
+import com.backend.Application.exceptions.ErrorResponse;
 import com.backend.Application.model.Customer;
 import com.backend.Application.model.UserCredentials;
 import com.backend.Application.service.CustomerService;
@@ -21,12 +23,13 @@ public class CustomerController {
     UserCredentialsService userCredentialsService;
 
     @PostMapping("register")
-    public ResponseEntity<Customer> registerCustomer(@Valid @RequestBody Customer customer) throws Exception {
+    public ResponseEntity<Object> registerCustomer(@Valid @RequestBody Customer customer) {
         try {
             return new ResponseEntity<>(customerService.registerCustomer(customer), HttpStatus.OK);
+        } catch (BackendException e) {
+            return new ResponseEntity<>(new ErrorResponse(e.getStatus(), e.getMessage()), HttpStatus.valueOf(e.getStatus()));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new Exception("Bad request");
+            return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
