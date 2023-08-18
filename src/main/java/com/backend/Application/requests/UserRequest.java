@@ -1,7 +1,7 @@
 package com.backend.Application.requests;
 
 import com.backend.Application.model.Address;
-import com.backend.Application.model.Role;
+import com.backend.Application.model.enums.Roles;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,7 +30,7 @@ public class UserRequest {
 
     private Date userRegisterDate;
 
-    private Role role;
+    private Roles roles;
 
     private List<Address> addresses;
 }

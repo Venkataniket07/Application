@@ -4,6 +4,7 @@ import com.backend.Application.exceptions.BackendException;
 import com.backend.Application.repository.UserRepository;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -28,7 +30,8 @@ public class ApplicationConfiguration {
 
     /**
      * {@link AuthenticationProvider} is the data access object which is responsible to fetch {@link org.springframework.security.core.userdetails.UserDetails}
-     * and also encode passwords.*/
+     * and also encode passwords.
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

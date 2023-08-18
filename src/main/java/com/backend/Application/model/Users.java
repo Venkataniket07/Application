@@ -1,5 +1,6 @@
 package com.backend.Application.model;
 
+import com.backend.Application.model.enums.Roles;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -53,8 +54,8 @@ public class Users implements UserDetails {
     private Date userRegisterDate;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
-    private Role role;
+    @Column(nullable = false)
+    private Roles roles;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL)
@@ -62,7 +63,7 @@ public class Users implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(roles.name()));
     }
 
     @Override
