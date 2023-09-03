@@ -1,10 +1,9 @@
 package com.backend.Application.service;
 
-import com.backend.Application.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
@@ -13,8 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
 
-    @Autowired
-    private static TokenRepository tokenRepository;
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LogoutService.class);
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
@@ -26,12 +24,10 @@ public class LogoutService implements LogoutHandler {
         }
 
         jwt = authHeader.substring(7);
-        var storedToken = tokenRepository.findByToken(jwt)
-                .orElse(null);
-        if (storedToken != null) {
-            storedToken.setExpired(true);
-            storedToken.setRevoked(true);
-            tokenRepository.save(storedToken);
+        var storedUserToken = TokenManagementService.getUserByToken(TokenManagementService.tokenStore, jwt);
+        logger.info("Logged out successfully");
+        if (storedUserToken != null) {
+            TokenManagementService.tokenStore.remove(storedUserToken);
         }
     }
 }

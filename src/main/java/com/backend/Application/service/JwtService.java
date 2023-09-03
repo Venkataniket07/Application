@@ -1,10 +1,12 @@
 package com.backend.Application.service;
 
+import com.backend.Application.exceptions.BackendException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.ws.rs.core.Response;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -54,8 +56,15 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private boolean isTokenExpired(String token) throws BackendException {
+        Date expirationDate = extractExpiration(token);
+        Date currentDate = new Date();
+
+        if (expirationDate.before(currentDate)) {
+            throw new BackendException(Response.Status.UNAUTHORIZED.getStatusCode(), "Token has expired. Please login again.");
+        }
+
+        return false;
     }
 
     private Date extractExpiration(String token) {

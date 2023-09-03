@@ -9,7 +9,6 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@ToString
 @Data
 @Builder
 @NoArgsConstructor
@@ -46,4 +45,17 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private Users users;
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "addressId='" + addressId + '\'' +
+                "apartment='" + apartment + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                ", locality='" + locality + '\'' +
+                ", pinCode='" + pinCode + '\'' +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

@@ -1,15 +1,15 @@
 package com.backend.Application.service;
 
+import com.backend.Application.exceptions.BackendException;
 import com.backend.Application.model.Address;
-import com.backend.Application.model.Token;
 import com.backend.Application.model.Users;
-import com.backend.Application.model.enums.TokenType;
-import com.backend.Application.repository.TokenRepository;
 import com.backend.Application.repository.UserRepository;
 import com.backend.Application.requests.AuthenticationRequest;
 import com.backend.Application.requests.UserRequest;
 import com.backend.Application.util.AuthenticationResponse;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,16 +23,17 @@ import java.util.TimeZone;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
     @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
     @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     @Autowired
-    private TokenRepository tokenRepository;
+    private final TokenManagementService tokenManagementService;
 
     public AuthenticationResponse register(UserRequest userRequest) {
 
@@ -51,8 +52,10 @@ public class AuthenticationService {
             address.setUsers(user);
         }
         var savedUser = userRepository.save(user);
+        logger.info(savedUser.getUsername() + " is register.");
         var jwtToken = jwtService.generateToken(user);
-        saveUserToken(savedUser, jwtToken);
+        logger.info(user.getUsername() + "'s generated token: '" + jwtToken + "'");
+        tokenManagementService.saveUserToken(savedUser, jwtToken);
 
         return AuthenticationResponse.builder()
                 .token(jwtToken)
@@ -63,36 +66,13 @@ public class AuthenticationService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
         var user = userRepository.findByUsernameOrEmail(request.getUsername(), request.getUsername())
-                .orElseThrow();
+                .orElseThrow(() -> new BackendException(Response.Status.NOT_FOUND.getStatusCode(), request.getUsername() + " doesn't exists in our database. Please register the User or Provide correct credentials"));
 
-        revokeAllUserToken(user);
         var jwtToken = jwtService.generateToken(user);
-        saveUserToken(user, jwtToken);
+        logger.info(request.getUsername() + " logged in successfully");
+        tokenManagementService.saveUserToken(user, jwtToken);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
-    }
-
-    private void saveUserToken(Users user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .revoked(false)
-                .expired(false)
-                .build();
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserToken(Users user) {
-        var validTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-
-        if (!validTokens.isEmpty()) {
-            validTokens.forEach(t -> {
-                t.setExpired(true);
-                t.setRevoked(true);
-            });
-        }
-        tokenRepository.saveAll(validTokens);
     }
 }
