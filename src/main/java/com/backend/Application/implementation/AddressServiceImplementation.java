@@ -6,6 +6,7 @@ import com.backend.Application.repository.AddressRepository;
 import com.backend.Application.repository.UserRepository;
 import com.backend.Application.service.AddressService;
 import com.backend.Application.service.JwtService;
+import com.backend.Application.util.BackendResponse;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +31,15 @@ public class AddressServiceImplementation implements AddressService {
     private static final Logger logger = LoggerFactory.getLogger(AddressServiceImplementation.class.getName());
 
     @Override
-    public Address updateUserAddress(String token, int addressId, Address address) {
+    public BackendResponse updateUserAddress(String token, int addressId, Address address) {
         try {
             // Retrieve the address to be updated
             Optional<Address> optionalAddress = addressRepository.findById(addressId);
             Address existingAddress = getExistingAddress(address, optionalAddress);
 
-            return addressRepository.save(existingAddress);
+            addressRepository.save(existingAddress);
+            return BackendResponse.builder()
+                    .response("Address updated. To view addresses click on: http://localhost:8080/backendApplication/address/viewUserAddresses").build();
         } catch (Exception e) {
             logger.error("Error occurred while updating address: " + e.getMessage());
             throw e;
@@ -56,15 +59,17 @@ public class AddressServiceImplementation implements AddressService {
     }
 
     @Override
-    public Address addAddress(String token, Address address) {
+    public BackendResponse addAddress(String token, Address address) {
         try {
             var user = userRepository.findByUsernameOrEmail(jwtService.extractUsername(token), jwtService.extractUsername(token))
                     .orElseThrow(() -> new BackendException(Response.Status.UNAUTHORIZED.getStatusCode(), "Please login to access this feature."));
 
             // Set the user as the owner of the new address
             address.setUsers(user);
+            addressRepository.save(address);
 
-            return addressRepository.save(address);
+            return BackendResponse.builder()
+                    .response("Address added. To view addresses click on: http://localhost:8080/backendApplication/address/viewUserAddresses").build();
         } catch (Exception e) {
             logger.error("Error occurred while adding address: " + e.getMessage());
             throw e;

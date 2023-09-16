@@ -30,7 +30,7 @@ public class AddressController {
     public ResponseEntity<Object> viewUserAddresses(@RequestHeader("Authorization") String token) {
         try {
             String jwtToken = extractJwtToken(token);
-            return ResponseEntity.ok(addressService.viewUserAddresses(jwtToken).toString());
+            return ResponseEntity.ok(addressService.viewUserAddresses(jwtToken));
         } catch (BackendException e) {
             return ResponseEntity.status(e.getStatus()).body(new ErrorResponse(e.getStatus(), e.getMessage()));
         } catch (Exception e) {

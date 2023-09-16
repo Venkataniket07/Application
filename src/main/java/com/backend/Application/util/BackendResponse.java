@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
+public class BackendResponse {
 
-    private final static String tokenExpirationTime = "2 minutes.";
-    private String token;
+    private String response;
 }

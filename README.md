@@ -1,6 +1,6 @@
 # BackendApplication
 
-Online shopping Backend-based spring-boot application
+User-management Backend-based spring-boot application
 
 ## Features
 * User registration and login with JWT authentication

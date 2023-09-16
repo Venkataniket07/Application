@@ -1,11 +1,13 @@
 package com.backend.Application.config;
 
+import com.backend.Application.exceptions.BackendException;
 import com.backend.Application.service.JwtService;
 import com.backend.Application.service.TokenManagementService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

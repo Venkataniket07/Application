@@ -7,6 +7,7 @@ import com.backend.Application.repository.UserRepository;
 import com.backend.Application.requests.AuthenticationRequest;
 import com.backend.Application.requests.UserRequest;
 import com.backend.Application.util.AuthenticationResponse;
+import com.backend.Application.util.BackendResponse;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class AuthenticationService {
     @Autowired
     private final TokenManagementService tokenManagementService;
 
-    public AuthenticationResponse register(UserRequest userRequest) {
+    public BackendResponse register(UserRequest userRequest) {
 
         var user = Users.builder()
                 .firstName(userRequest.getFirstName())
@@ -57,9 +58,8 @@ public class AuthenticationService {
         logger.info(user.getUsername() + "'s generated token: '" + jwtToken + "'");
         tokenManagementService.saveUserToken(savedUser, jwtToken);
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        return BackendResponse.builder()
+                .response("User Registration Successful. Login with your credentials at: http://localhost:8080/backendApplication/auth/authenticate").build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
